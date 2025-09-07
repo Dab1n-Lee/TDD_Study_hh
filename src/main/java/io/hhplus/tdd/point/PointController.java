@@ -11,6 +11,12 @@ import java.util.List;
 public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
+    
+    private final PointService pointService;
+
+    public PointController(PointService pointService) {
+        this.pointService = pointService;
+    }
 
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
@@ -19,7 +25,7 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
-        return new UserPoint(0, 0, 0);
+        return pointService.getUserPoint(id);
     }
 
     /**
@@ -29,7 +35,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        return pointService.getPointHistories(id);
     }
 
     /**
@@ -40,7 +46,13 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        // Controller에서 기본 유효성 검사 (형식 검증)
+        if (amount <= 0) {
+            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
+        }
+        
+        log.info("포인트 충전 요청 - 사용자 ID: {}, 충전 금액: {}", id, amount);
+        return pointService.chargePoint(id, amount);
     }
 
     /**
@@ -51,6 +63,12 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        // Controller에서 기본 유효성 검사 (형식 검증)
+        if (amount <= 0) {
+            throw new IllegalArgumentException("사용 금액은 0보다 커야 합니다.");
+        }
+        
+        log.info("포인트 사용 요청 - 사용자 ID: {}, 사용 금액: {}", id, amount);
+        return pointService.usePoint(id, amount);
     }
 }
